@@ -33,7 +33,7 @@ const AliyunOSS = {
   **bucketName
   *sourceFile:源文件路径，例如:/User/xx/xx/test.jpg
   *ossFile:目标路径，例如:文件夹/文件名  test/test.jpg
-  *updateDate:需要和签名中用到的时间一致
+  *localPath:本地路径
   */
 	uploadObjectAsync(conf) {
 		return NativeAliyunOSS.uploadObjectAsync(conf.bucketName, conf.sourceFile, conf.ossFile);
