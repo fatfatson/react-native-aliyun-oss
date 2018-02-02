@@ -45,14 +45,14 @@ const AliyunOSS = {
       conf.bucketName,
       conf.sourceFile,
       conf.ossFile,
-      conf.updateDate);
+      conf.updateDate||'');
   },
 
   downloadObjectAsync(conf) {
     return NativeAliyunOSS.downloadObjectAsync(
       conf.bucketName,
       conf.ossFile,
-      conf.updateDate);
+      conf.updateDate||'');
   },
 
   /*监听上传和下载事件，
