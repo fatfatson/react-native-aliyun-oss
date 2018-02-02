@@ -104,14 +104,10 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void uploadObjectAsync(String bucketName, String sourceFile, String ossFile, String updateDate, final Promise promise) {
-// 构造上传请求
+    public void uploadObjectAsync(String bucketName, String sourceFile, String ossFile,  final Promise promise) {
+        // 构造上传请求
         PutObjectRequest put = new PutObjectRequest(bucketName, ossFile, sourceFile);
-        if( updateDate != "" ){
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setHeader("Date",updateDate);
-            put.setMetadata(metadata);
-        }
+
 
         // 异步上传时可以设置进度回调
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -138,7 +134,8 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
             }
 
             @Override
-            public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            public void onFailure(PutObjectRequest request, ClientException clientExcepion,
+                    ServiceException serviceException) {
                 // 请求异常
                 if (clientExcepion != null) {
                     // 本地异常如网络异常等
@@ -158,7 +155,7 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void downloadObjectAsync(String bucketName, String ossFile, String updateDate, final Promise promise) {
+    public void downloadObjectAsync(final String bucketName, final String ossFile, final String localPath, final Promise promise) {
         // 构造下载文件请求
         GetObjectRequest get = new GetObjectRequest(bucketName, ossFile);
 
@@ -175,10 +172,7 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
                 int len;
 
                 FileOutputStream outputStream = null;
-                String localImgURL = Environment.getExternalStorageDirectory().getAbsolutePath() +
-                        "/ImgCache/" +
-                        System.currentTimeMillis() +
-                        ".jpg";
+                String localImgURL = Environment.getExternalStorageDirectory().getAbsolutePath() + localPath;
                 Log.d("localImgURL", localImgURL);
                 File cacheFile = new File(localImgURL);
                 if (!cacheFile.exists()) {
@@ -197,15 +191,15 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
                     e.printStackTrace();
                     promise.reject("DownloadFaile", e);
                 }
-                if(resultLength == -1){
+                if (resultLength == -1) {
                     promise.reject("DownloadFaile", "message:lengtherror");
                 }
 
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // 处理下载的数据
-                        try{
-                            outputStream.write(buffer,0,len);
+                        try {
+                            outputStream.write(buffer, 0, len);
                             readSize += len;
 
                             String str_currentSize = Long.toString(readSize);
@@ -213,31 +207,32 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
                             WritableMap onProgressValueData = Arguments.createMap();
                             onProgressValueData.putString("currentSize", str_currentSize);
                             onProgressValueData.putString("totalSize", str_totalSize);
-                            getReactApplicationContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                            getReactApplicationContext()
+                                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                     .emit("downloadProgress", onProgressValueData);
 
-                        }catch (IOException e) {
+                        } catch (IOException e) {
                             e.printStackTrace();
-                            promise.reject("DownloadFaile", e);
+                            promise.reject("DownloadFail", e);
                         }
                     }
                     outputStream.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    promise.reject("DownloadFaile", e);
+                    promise.reject("DownloadFail", e);
                 } finally {
                     if (outputStream != null) {
                         try {
                             outputStream.close();
                         } catch (IOException e) {
-                            promise.reject("DownloadFaile", e);
+                            promise.reject("DownloadFail", e);
                         }
                     }
                     if (inputStream != null) {
                         try {
                             inputStream.close();
                         } catch (IOException e) {
-                            promise.reject("DownloadFaile", e);
+                            promise.reject("DownloadFail", e);
                         }
                     }
                     promise.resolve(localImgURL);
@@ -245,7 +240,8 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
             }
 
             @Override
-            public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            public void onFailure(GetObjectRequest request, ClientException clientExcepion,
+                    ServiceException serviceException) {
                 // 请求异常
                 if (clientExcepion != null) {
                     // 本地异常如网络异常等
@@ -258,7 +254,7 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
-                promise.reject("DownloadFaile", "message:networkerror");
+                promise.reject("DownloadFail", "message:networkerror");
             }
         });
 
