@@ -172,7 +172,7 @@ public class aliyunossModule extends ReactContextBaseJavaModule {
                 int len;
 
                 FileOutputStream outputStream = null;
-                String localImgURL = Environment.getExternalStorageDirectory().getAbsolutePath() + localPath;
+                String localImgURL = localPath;
                 Log.d("localImgURL", localImgURL);
                 File cacheFile = new File(localImgURL);
                 if (!cacheFile.exists()) {
