@@ -86,7 +86,7 @@ RCT_EXPORT_METHOD(initWithSigner:(NSString *)AccessKey
 }
 
 //异步下载
-RCT_REMAP_METHOD(downloadObjectAsync, bucketName:(NSString *)bucketName objectKey:(NSString *)objectKey updateDate:(NSString *)updateDate resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_REMAP_METHOD(downloadObjectAsync, bucketName:(NSString *)bucketName objectKey:(NSString *)objectKey localPath:(NSString *)localPath resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     OSSGetObjectRequest *request = [OSSGetObjectRequest new];
     // required
     request.bucketName = bucketName;
@@ -100,7 +100,7 @@ RCT_REMAP_METHOD(downloadObjectAsync, bucketName:(NSString *)bucketName objectKe
     };
     NSString *docDir = [self getDocumentDirectory];
     NSLog(objectKey);
-    NSURL *url = [NSURL fileURLWithPath:[docDir stringByAppendingPathComponent:objectKey]];
+    NSURL *url = [NSURL fileURLWithPath:localPath];
     request.downloadToFileURL = url;
     OSSTask *getTask = [client getObject:request];
     [getTask continueWithBlock:^id(OSSTask *task) {
